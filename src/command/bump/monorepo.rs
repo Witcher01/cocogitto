@@ -33,10 +33,10 @@ struct PackageBumpData {
 }
 
 #[derive(Debug)]
-struct PackageData {
-    package_name: String,
-    package_path: String,
-    version: Tag,
+pub struct PackageData {
+    pub package_name: String,
+    pub package_path: String,
+    pub version: Tag,
 }
 
 impl CocoGitto {
@@ -62,7 +62,7 @@ impl CocoGitto {
         let bumps = self.get_packages_bumps(opts.pre_release, opts.build)?;
 
         if bumps.is_empty() {
-            print!("No conventional commits found for your packages that required a bump. Changelogs will be updated on the next bump.\nPre-Hooks and Post-Hooks have been skiped.\n");
+            print!("No conventional commits found for your packages that required a bump. Changelogs will be updated on the next bump.\nPre-Hooks and Post-Hooks have been skipped.\n");
             return Ok(());
         }
 
@@ -97,9 +97,11 @@ impl CocoGitto {
             }
         }
 
-        for bump in &bumps {
-            self.repository
-                .create_tag(&bump.new_version.prefixed_tag, disable_bump_commit)?;
+        if SETTINGS.generate_mono_repository_package_tags {
+            for bump in &bumps {
+                self.repository
+                    .create_tag(&bump.new_version.prefixed_tag, disable_bump_commit)?;
+            }
         }
 
         // Run per package post hooks
@@ -129,7 +131,7 @@ impl CocoGitto {
         // Get package bumps
         let bumps = self.get_packages_bumps(opts.pre_release, opts.build)?;
         if bumps.is_empty() {
-            print!("No conventional commits found for your packages that required a bump. Changelogs will be updated on the next bump.\nPre-Hooks and Post-Hooks have been skiped.\n");
+            print!("No conventional commits found for your packages that required a bump. Changelogs will be updated on the next bump.\nPre-Hooks and Post-Hooks have been skipped.\n");
             return Ok(());
         }
 
@@ -145,10 +147,14 @@ impl CocoGitto {
             .repository
             .get_latest_tag(TagLookUpOptions::default().include_pre_release());
         let old = tag_or_fallback_to_zero(old)?;
-        let mut tag = old.bump(
-            IncrementCommand::AutoMonoRepoGlobal(increment_from_package_bumps),
-            &self.repository,
-        )?;
+        let mut tag = if SETTINGS.generate_mono_repository_package_tags {
+            old.bump(
+                IncrementCommand::AutoMonoRepoGlobal(increment_from_package_bumps),
+                &self.repository,
+            )?
+        } else {
+            old.bump(IncrementCommand::Auto, &self.repository)?
+        };
 
         ensure_tag_is_greater_than_previous(&old, &tag)?;
 
@@ -255,9 +261,11 @@ impl CocoGitto {
             }
         }
 
-        for bump in &bumps {
-            self.repository
-                .create_tag(&bump.new_version.prefixed_tag, disable_bump_commit)?;
+        if SETTINGS.generate_mono_repository_package_tags {
+            for bump in &bumps {
+                self.repository
+                    .create_tag(&bump.new_version.prefixed_tag, disable_bump_commit)?;
+            }
         }
 
         if let Some(msg_tmpl) = opts.annotated {
@@ -419,7 +427,7 @@ impl CocoGitto {
         Ok(())
     }
 
-    fn get_current_packages(&self) -> Result<Vec<PackageData>> {
+    pub fn get_current_packages(&self) -> Result<Vec<PackageData>> {
         let mut packages = vec![];
         for (package_name, package) in SETTINGS.packages.iter() {
             let tag = self.repository.get_latest_package_tag(package_name);

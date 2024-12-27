@@ -70,7 +70,7 @@ and [Semver](https://semver.org/) specifications.
 ### Why ?
 
 There are plenty of tools listed on
-the [conventional commits web site](https://www.conventionalcommits.org/en/about/)
+the [conventional commits website](https://www.conventionalcommits.org/en/about/)
 to help you generate changelog, git hooks, commit template etc. Some of them are specifically designed for the
 Conventional Commits specification, and some of them are general purpose. 
 
@@ -148,7 +148,13 @@ cog commit feat "add awesome feature"
 git commit -m "feat: add awesome feature"
 ```
 
-See [User guide -> Conventional commits](https://docs.cocogitto.io/guide/#conventional-commits).
+See [User guide -> Conventional commits](https://docs.cocogitto.io/guide/commit#conventional-commits).
+
+## Configuration
+
+Use `cog.toml` file to configure your usage of Cocogitto.
+
+For the full list of options, see [User guide ->  Configuration reference](https://docs.cocogitto.io/reference/config#configuration-reference).
 
 ## Auto-bumps
 
@@ -189,7 +195,7 @@ authors = [
 
 ## Changelogs
 
-`cog changelog` uses [tera](https://tera.netlify.app/) templates to generate markdown changelogs. It has several built-in
+`cog changelog` uses [tera](https://keats.github.io/tera/) templates to generate markdown changelogs. It has several built-in
 templates, and you can define your own.
 
 **Example:**
@@ -260,7 +266,7 @@ using [cocogitto-action](https://github.com/cocogitto/cocogitto-action).
       git-user-email: 'mycoolproject@org.org'
 ```
 
-See [Github integration -> GitHub action](https://docs.cocogitto.io/ci_cd/#github-action)
+See [Github integration -> GitHub action](https://docs.cocogitto.io/ci_cd/action#github-action)
 
 **GitHub bot:**
 
